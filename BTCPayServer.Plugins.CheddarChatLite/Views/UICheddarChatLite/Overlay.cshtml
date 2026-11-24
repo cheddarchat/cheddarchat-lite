@@ -1,0 +1,38 @@
+@model BTCPayServer.Plugins.CheddarChatLite.ViewModels.OverlayViewModel
+@inject BTCPayServer.Security.ContentSecurityPolicies Csp
+@inject Microsoft.AspNetCore.Mvc.ViewFeatures.IFileVersionProvider FileVersionProvider
+@{
+    Layout = null;
+    // Browsers keep the files of BTCPay Server for a year. The version in the address makes them fetch the
+    // worker again when it changed, as asp-append-version does for the other files.
+    var phononWorker = FileVersionProvider.AddFileVersionToPath(Context.Request.PathBase, Url.Content("~/Resources/js/cheddarchat-lite-phonon-worker.js"));
+    // The Phonon speech model is loaded from jsDelivr, see cheddarchat-lite-overlay.js. Only this package in this
+    // version is allowed, not all of jsDelivr. The version is also in cheddarchat-lite-phonon-worker.js.
+    const string phononLibrary = "https://cdn.jsdelivr.net/npm/phonon-tts@0.7.1/";
+    // Also without a Phonon voice: the voice can be changed in the settings while the overlay is open
+    Csp.Add("script-src", phononLibrary);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    @* The URL contains the secret overlay key, don't leak it to the alert image host *@
+    <meta name="referrer" content="no-referrer" />
+    <title>@Model.Title</title>
+    <link href="~/Resources/css/cheddarchat-lite-overlay.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body style="--cc-accent:@Model.AccentColor" data-socket-url="@Model.SocketUrl" data-image="@Model.ImageUrl" data-default-image="@Url.Content("~/imlegacy/bitcoin.svg")" data-voice="@Model.Voice" data-phonon-library="@phononLibrary" data-phonon-worker="@phononWorker">
+    <div id="CheddarChatAlert" class="cc-alert" aria-live="polite"></div>
+    @* Only shown while the voice model is downloaded, the first time the overlay is used in a browser *@
+    <div id="CheddarChatStatus" class="cc-status" role="status" hidden
+         data-downloading="@StringLocalizer["Downloading the voice model"]"
+         data-preparing="@StringLocalizer["Preparing the voice"]"
+         data-failed="@StringLocalizer["The voice model could not be downloaded. Alerts are read by this computer's voice for now."]">
+        <div class="cc-status__text"></div>
+        <div class="cc-status__bar"><div class="cc-status__progress"></div></div>
+    </div>
+    <script src="~/Resources/js/cheddarchat-lite-overlay.js" asp-append-version="true"></script>
+</body>
+</html>

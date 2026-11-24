@@ -1,0 +1,47 @@
+@using BTCPayServer.Abstractions.Models
+@model BTCPayServer.Plugins.CheddarChatLite.ViewModels.AlertsViewModel
+@{
+    ViewData.SetLayoutModel(new LayoutModel(CheddarChatLiteApp.AppType, StringLocalizer["Alerts"]).SetCategory(WellKnownCategories.Store));
+}
+
+@section PageFootContent {
+    <script src="~/Resources/js/cheddarchat-lite-alerts.js" asp-append-version="true"></script>
+}
+
+<div class="sticky-header">
+    <h2>@ViewData["Title"]</h2>
+    <div class="d-flex gap-3 mt-3 mt-sm-0">
+        <form method="post" asp-action="SkipAlert" asp-route-appId="@Model.AppId">
+            <button type="submit" class="btn btn-outline-secondary" id="SkipAlert" text-translate="true">Skip current alert</button>
+        </form>
+        <form method="post" asp-action="TestAlert" asp-route-appId="@Model.AppId">
+            <button type="submit" class="btn btn-secondary" id="TestAlert" text-translate="true">Send test alert</button>
+        </form>
+        <a class="btn btn-secondary" asp-action="UpdateSettings" asp-route-appId="@Model.AppId" id="Settings" text-translate="true">Settings</a>
+    </div>
+</div>
+
+<partial name="_StatusMessage" />
+
+<div class="row mb-4">
+    <div class="col-xl-10 col-xxl-constrain">
+        <label for="OverlayUrl" class="form-label" text-translate="true">OBS overlay URL</label>
+        <div class="d-flex gap-3">
+            <div class="input-group clipboard-button" data-clipboard="@Model.OverlayUrl">
+                <input id="OverlayUrl" type="text" class="form-control copy-cursor" readonly="readonly" value="@Model.OverlayUrl" />
+                <button type="button" class="btn btn-outline-secondary px-3" title="@StringLocalizer["Copy"]">
+                    <vc:icon symbol="actions-copy" />
+                </button>
+            </div>
+            <a asp-action="ResetOverlayUrl" asp-route-appId="@Model.AppId" class="btn btn-outline-danger text-nowrap" id="ResetOverlayUrl" data-bs-toggle="modal" data-bs-target="#ConfirmModal" text-translate="true">Reset</a>
+        </div>
+        <div class="form-text" text-translate="true">Add this URL as a browser source in OBS. Keep it private: Anyone with this URL can show your alerts.</div>
+    </div>
+</div>
+
+@* The script re-fetches this part (as a partial) whenever something changes *@
+<div id="CheddarChatAlerts" data-socket-url="@Url.Action("AlertsSocket", new { appId = Model.AppId })">
+    <partial name="_AlertsList" model="Model" />
+</div>
+
+<partial name="_Confirm" model="@(new ConfirmModel(StringLocalizer["Reset overlay URL"], StringLocalizer["The current overlay URL will stop working and you need to update the browser source in OBS with the new URL."], StringLocalizer["Reset"]))" />

@@ -1,0 +1,20 @@
+@using BTCPayServer.Abstractions.Models
+@{
+    ViewData.SetLayoutModel(new LayoutModel(CheddarChatLiteApp.AppType, StringLocalizer["CheddarChat Lite"]).SetCategory(WellKnownCategories.Store));
+}
+
+<div class="sticky-header">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<partial name="_StatusMessage" />
+
+<div class="row">
+    <div class="col-xl-8 col-xxl-constrain">
+        <p text-translate="true">Viewers pay to send a message, which pops up as an alert in OBS and is read aloud.</p>
+        <p text-translate="true">Enabling it creates a public page for this store, on which anyone can create an invoice to send a message. You can disable it again at any time.</p>
+        <form method="post">
+            <button type="submit" class="btn btn-primary" id="EnableCheddarChat" text-translate="true">Enable</button>
+        </form>
+    </div>
+</div>

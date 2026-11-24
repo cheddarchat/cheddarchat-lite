@@ -1,0 +1,81 @@
+@using BTCPayServer.Services
+@inject DisplayFormatter DisplayFormatter
+@model BTCPayServer.Plugins.CheddarChatLite.ViewModels.AlertsViewModel
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <form method="post" asp-action="SetAutoPlay" asp-route-appId="@Model.AppId" class="d-flex align-items-center">
+        <input id="AutoPlay" name="autoPlay" type="checkbox" value="true" class="btcpay-toggle me-3" checked="@Model.AutoPlay" data-autosubmit />
+        <label for="AutoPlay" class="form-label mb-0" text-translate="true">Play alerts automatically</label>
+    </form>
+    @if (Model.OverlayCount > 0)
+    {
+        <span class="badge bg-success" id="OverlayStatus">
+            @(Model.OverlayCount == 1 ? StringLocalizer["Overlay connected"] : StringLocalizer["{0} overlays connected", Model.OverlayCount])
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-warning text-dark" id="OverlayStatus" text-translate="true">Overlay not connected</span>
+    }
+</div>
+
+@if (Model.Donations.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover" id="Donations">
+            <thead>
+                <tr>
+                    <th text-translate="true">Date</th>
+                    <th text-translate="true">From</th>
+                    <th text-translate="true">Message</th>
+                    <th class="text-end" text-translate="true">Amount</th>
+                    <th text-translate="true">Status</th>
+                    <th class="text-end" text-translate="true">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var donation in Model.Donations)
+                {
+                    var played = donation.PlayedAt is not null;
+                    <tr>
+                        <td class="text-nowrap">
+                            <a asp-controller="UIInvoice" asp-action="Invoice" asp-route-invoiceId="@donation.InvoiceId">
+                                @donation.Timestamp.ToBrowserDate(ViewsRazor.DateDisplayFormat.Relative)
+                            </a>
+                        </td>
+                        <td>@(donation.Name ?? StringLocalizer["Anonymous"].Value)</td>
+                        <td class="text-break">@donation.Message</td>
+                        <td class="text-end text-nowrap">@DisplayFormatter.Currency(donation.Amount, donation.Currency, DisplayFormatter.CurrencyFormat.Symbol)</td>
+                        <td>
+                            @if (played)
+                            {
+                                <span class="badge bg-secondary" text-translate="true">Played</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark" text-translate="true">New</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <form method="post" asp-action="PlayAlert" asp-route-appId="@Model.AppId" asp-route-invoiceId="@donation.InvoiceId" asp-route-skip="@Model.Skip" asp-route-count="@Model.Count">
+                                <button type="submit" class="btn btn-sm @(played ? "btn-outline-secondary" : "btn-primary")">
+                                    @(played ? StringLocalizer["Replay"] : StringLocalizer["Play"])
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <vc:pager view-model="Model" />
+}
+else if (Model.Skip > 0)
+{
+    <p class="text-secondary" text-translate="true">There are no more CheddarChats.</p>
+    <vc:pager view-model="Model" />
+}
+else
+{
+    <p class="text-secondary" text-translate="true">There are no paid CheddarChats yet. Send a test alert to check your overlay.</p>
+}

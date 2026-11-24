@@ -1,0 +1,4 @@
+[submodule "btcpayserver"]
+	path = btcpayserver
+	url = https://github.com/btcpayserver/btcpayserver
+	shallow = true

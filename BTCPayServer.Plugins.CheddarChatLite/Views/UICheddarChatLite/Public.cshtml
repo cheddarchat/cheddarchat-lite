@@ -1,0 +1,82 @@
+@using System.Globalization
+@using BTCPayServer.Abstractions.Services
+@using BTCPayServer.Client
+@using BTCPayServer.Services
+@model BTCPayServer.Plugins.CheddarChatLite.ViewModels.PublicViewModel
+@inject Safe Safe
+@inject DisplayFormatter DisplayFormatter
+@inject BTCPayServerEnvironment Env
+@{
+    var title = string.IsNullOrEmpty(Model.Title) ? Model.StoreName : Model.Title;
+    ViewData["Title"] = title;
+    ViewData["StoreBranding"] = Model.StoreBranding;
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en"@(Env.IsDeveloping ? " data-devenv" : "")>
+<head>
+    <partial name="LayoutHead" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="public-page-wrap" style="max-width:540px">
+        <main class="flex-grow-1 container">
+            <div class="d-flex flex-column justify-content-center gap-4">
+                @if (Model.ShowHeader)
+                {
+                    <partial name="_StoreHeader" model="(title, Model.StoreBranding)" />
+                }
+                <partial name="_StatusMessage" />
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div>@Safe.Raw(Model.Description)</div>
+                }
+                <form method="post">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Donation.Name" class="form-label"></label>
+                                <input asp-for="Donation.Name" class="form-control" maxlength="50" autocomplete="nickname" />
+                                <span asp-validation-for="Donation.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Donation.Amount" class="form-label" data-required></label>
+                                <div class="input-group">
+                                    <input asp-for="Donation.Amount" type="number" inputmode="decimal" class="form-control hide-number-spin" min="@Model.MinAmount.ToString(CultureInfo.InvariantCulture)" step="any" required />
+                                    <span class="input-group-text">@Model.Currency</span>
+                                </div>
+                                <span asp-validation-for="Donation.Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @if (Model.MinAmount > 0)
+                        {
+                            <div class="col-12 form-text mt-n3 mb-4">
+                                @StringLocalizer["The minimum amount is {0}.", DisplayFormatter.Currency(Model.MinAmount, Model.Currency!, DisplayFormatter.CurrencyFormat.Symbol)]
+                            </div>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Donation.Message" class="form-label" data-required></label>
+                        <textarea asp-for="Donation.Message" class="form-control" rows="4" maxlength="@Model.MaxMessageLength" required></textarea>
+                        <div class="form-text">@StringLocalizer["Your message will be shown and read aloud on stream. Up to {0} characters.", Model.MaxMessageLength]</div>
+                        <span asp-validation-for="Donation.Message" class="text-danger"></span>
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary" id="SendCheddarChat">@Model.ButtonText</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer class="store-footer">
+            <p permission="@Policies.CanModifyStoreSettings" class="d-print-none">
+                <a asp-controller="UICheddarChatLite" asp-action="UpdateSettings" asp-route-appId="@Model.AppId">@StringLocalizer["Edit {0}", title!]</a>
+            </p>
+            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
+                <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+            </a>
+        </footer>
+    </div>
+    <partial name="LayoutFoot" />
+</body>
+</html>

@@ -1,0 +1,184 @@
+@using BTCPayServer.Abstractions.Models
+@using BTCPayServer.Plugins.CheddarChatLite.Services
+@model BTCPayServer.Plugins.CheddarChatLite.ViewModels.UpdateSettingsViewModel
+@{
+    ViewData.SetLayoutModel(new LayoutModel(CheddarChatLiteApp.AppType, StringLocalizer["CheddarChat Lite"]).SetCategory(WellKnownCategories.Store));
+    var publicUrl = Url.Action("Public", "UICheddarChatLite", new { appId = Model.Id }, Context.Request.Scheme);
+}
+
+<form method="post" class="mb-5">
+    <div class="sticky-header">
+        <h2>@ViewData["Title"]</h2>
+        <div class="d-flex gap-3 mt-3 mt-sm-0">
+            <button type="submit" class="btn btn-primary order-sm-1" id="SaveSettings" text-translate="true">Save</button>
+            @if (Model.Archived)
+            {
+                <button type="submit" class="btn btn-secondary" id="EnableCheddarChat" asp-action="Enable" asp-route-storeId="@Model.StoreId" formnovalidate text-translate="true">Enable</button>
+            }
+            else
+            {
+                <a class="btn btn-secondary" asp-action="Alerts" asp-route-appId="@Model.Id" id="Alerts" text-translate="true">Alerts</a>
+                <a class="btn btn-secondary" asp-action="Public" asp-route-appId="@Model.Id" id="ViewApp" target="_blank" text-translate="true">View</a>
+            }
+        </div>
+    </div>
+
+    <partial name="_StatusMessage" />
+
+    @if (Model.Archived)
+    {
+        <div class="alert alert-warning" role="alert" id="DisabledNotice" text-translate="true">CheddarChat Lite is disabled. The public page and the OBS overlay do not work until you enable it again.</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-sm-10 col-md-9 col-xl-7 col-xxl-6">
+            <div class="form-group">
+                <label asp-for="Title" class="form-label" data-required></label>
+                <input asp-for="Title" class="form-control" required />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+                <div class="form-text" text-translate="true">Shown above the form on the public page.</div>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="Currency" class="form-label"></label>
+                        <input asp-for="Currency" class="form-control w-auto" currency-selection />
+                        <div class="form-text">@StringLocalizer["Uses the store's default currency ({0}) if empty.", Model.StoreDefaultCurrency ?? string.Empty]</div>
+                        <span asp-validation-for="Currency" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="MinAmount" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="MinAmount" type="number" inputmode="decimal" class="form-control hide-number-spin" min="0" step="any" />
+                            <span class="input-group-text">@Model.Currency</span>
+                        </div>
+                        <span asp-validation-for="MinAmount" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="MaxMessageLength" class="form-label"></label>
+                        <input asp-for="MaxMessageLength" type="number" inputmode="numeric" class="form-control" min="1" max="500" required />
+                        <div class="form-text" text-translate="true">Keep it short, so that the text-to-speech does not take too long.</div>
+                        <span asp-validation-for="MaxMessageLength" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="ButtonText" class="form-label" data-required></label>
+                        <input asp-for="ButtonText" class="form-control" required />
+                        <span asp-validation-for="ButtonText" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group d-flex align-items-center pt-2">
+                <input asp-for="ShowHeader" type="checkbox" class="btcpay-toggle me-3" />
+                <label asp-for="ShowHeader" class="form-label mb-0"></label>
+                <span asp-validation-for="ShowHeader" class="text-danger"></span>
+            </div>
+
+            <button class="d-inline-flex align-items-center btn btn-link text-primary fw-semibold p-0 mt-2" type="button" id="CleanLinkGuideButton" data-bs-toggle="collapse" data-bs-target="#CleanLinkGuide" aria-expanded="false" aria-controls="CleanLinkGuide">
+                <vc:icon symbol="caret-down" />
+                <span class="ms-1" text-translate="true">Use a clean link like donate.example.com</span>
+            </button>
+            <div id="CleanLinkGuide" class="collapse">
+                <div class="pt-3">
+                    <p>
+                        <span text-translate="true">Your donation page is at</span>
+                        <a href="@publicUrl" target="_blank" class="text-break" id="PublicUrl">@publicUrl</a>.
+                        <span html-translate="true">BTCPay Server can show it on a subdomain of a domain you own instead, for example <code>donate.example.com</code>. The admin of the server sets this up:</span>
+                        <a href="https://docs.btcpayserver.org/FAQ/Apps/#how-to-map-a-domain-name-to-an-app" target="_blank" rel="noreferrer noopener" id="CleanLinkDocs" text-translate="true">How to map a domain name to an app</a>
+                    </p>
+                    <p class="mb-0">
+                        <span text-translate="true">The last step there asks for the app. Enter this app id:</span>
+                        <span class="d-inline-flex align-items-center gap-2 text-nowrap align-bottom">
+                            <code id="AppId">@Model.Id</code>
+                            <button type="button" class="btn btn-link d-flex p-0 clipboard-button" data-clipboard="@Model.Id" title="@StringLocalizer["Copy"]">
+                                <vc:icon symbol="actions-copy" />
+                            </button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-sm-10 col-md-9 col-xl-7 col-xxl-6">
+            <h3 class="mb-3" text-translate="true">Alerts</h3>
+            <div class="form-group">
+                <div class="d-flex align-items-center">
+                    <input asp-for="AutoPlay" type="checkbox" class="btcpay-toggle me-3" />
+                    <label asp-for="AutoPlay" class="form-label mb-0"></label>
+                </div>
+                <div class="form-text" text-translate="true">If disabled, each paid CheddarChat waits on the Alerts page until you play it.</div>
+                <span asp-validation-for="AutoPlay" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="d-flex align-items-center">
+                    <input asp-for="TextToSpeech" type="checkbox" class="btcpay-toggle me-3" />
+                    <label asp-for="TextToSpeech" class="form-label mb-0"></label>
+                </div>
+                <span asp-validation-for="TextToSpeech" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voice" class="form-label"></label>
+                <select asp-for="Voice" class="form-select w-auto">
+                    @foreach (var group in CheddarChatLiteVoices.All.GroupBy(voice => voice.Group))
+                    {
+                        <optgroup label="@StringLocalizer[group.Key]">
+                            @foreach (var voice in group)
+                            {
+                                <option value="@voice.Id">@voice.Name</option>
+                            }
+                        </optgroup>
+                    }
+                    <optgroup label="@StringLocalizer["Browser"]">
+                        <option value="" text-translate="true">Voice of the streaming computer</option>
+                    </optgroup>
+                </select>
+                <div class="form-text">
+                    <span text-translate="true">The named voices are spoken by the Phonon speech model, which runs inside the OBS browser source. OBS downloads it once (about 70 MB) from jsDelivr and Hugging Face. Its sound is part of the browser source, so "Control audio via OBS" works.</span>
+                    <span text-translate="true">The voice of the streaming computer needs no download, but OBS can only capture it as desktop audio, with "Control audio via OBS" unchecked.</span>
+                </div>
+                <span asp-validation-for="Voice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlertImageUrl" class="form-label"></label>
+                <input asp-for="AlertImageUrl" type="url" class="form-control" placeholder="https://" />
+                <div class="form-text" text-translate="true">Link to an image or GIF that is shown with every alert. If empty, a bouncing Bitcoin logo is shown.</div>
+                <span asp-validation-for="AlertImageUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlertDuration" class="form-label"></label>
+                <input asp-for="AlertDuration" type="number" inputmode="numeric" class="form-control" min="1" max="60" required style="max-width:8rem" />
+                <div class="form-text" text-translate="true">Alerts stay on screen at least this long, or until the message has been read aloud.</div>
+                <span asp-validation-for="AlertDuration" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="d-flex gap-3 mt-3">
+    <a class="btn btn-secondary" asp-action="ListInvoices" asp-controller="UIInvoice" asp-route-storeId="@Model.StoreId" asp-route-searchterm="@Model.SearchTerm" text-translate="true">Invoices</a>
+    @if (!Model.Archived)
+    {
+        <form method="post" asp-action="Disable" asp-route-appId="@Model.Id">
+            <button type="submit" class="btn btn-outline-secondary" id="DisableCheddarChat" data-bs-toggle="tooltip" title="@StringLocalizer["Turns off the public page and the OBS overlay. The settings and both URLs are kept."]" text-translate="true">Disable</button>
+        </form>
+    }
+    <a id="DeleteApp" class="btn btn-outline-danger" asp-controller="UIApps" asp-action="DeleteApp" asp-route-appId="@Model.Id" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-confirm-input="@StringLocalizer["DELETE"]" text-translate="true">Delete</a>
+</div>
+
+<partial name="_Confirm" model="@(new ConfirmModel(StringLocalizer["Delete CheddarChat Lite"], StringLocalizer["CheddarChat Lite will be removed from this store. Its settings, the public page and the overlay URL will be permanently deleted."], StringLocalizer["Delete"]))" />

@@ -1,0 +1,122 @@
+/* Override these in the "Custom CSS" field of the OBS browser source to restyle the alerts */
+:root {
+    --cc-accent: #F5A623;
+    --cc-text: #fff;
+    --cc-outline: rgba(0, 0, 0, .85);
+    --cc-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+.cc-alert {
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2vmin;
+    padding: 4vmin;
+    color: var(--cc-text);
+    font-family: var(--cc-font);
+    text-align: center;
+    text-shadow: 0 0 2px var(--cc-outline), 0 2px 4px var(--cc-outline), 0 0 16px rgba(0, 0, 0, .5);
+    opacity: 0;
+    transform: translateY(3vmin) scale(.96);
+    transition: opacity .4s ease, transform .5s cubic-bezier(.2, .9, .3, 1.2);
+}
+
+.cc-alert.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+.cc-alert__image {
+    max-width: 80%;
+    max-height: 45vh;
+    object-fit: contain;
+}
+
+/* The Bitcoin logo, shown when no alert image is set */
+.cc-alert__image--default {
+    height: 28vmin;
+    /* The slight bounce of CheddarChat's bolt: up a little, a small dip on landing, every 1.8 seconds */
+    animation: cc-bounce 1.8s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+@keyframes cc-bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    42% { transform: translateY(-1vmin) scale(1.015); }
+    68% { transform: translateY(.25vmin) scale(.995); }
+}
+
+.cc-alert__title {
+    font-size: clamp(22px, 6vmin, 72px);
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.cc-alert__name,
+.cc-alert__amount {
+    color: var(--cc-accent);
+}
+
+.cc-alert__message {
+    display: -webkit-box;
+    max-width: 90%;
+    overflow: hidden;
+    font-size: clamp(16px, 4.2vmin, 48px);
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
+}
+
+/* Download progress of the voice model */
+.cc-status {
+    position: fixed;
+    left: 2vmin;
+    bottom: 2vmin;
+    box-sizing: border-box;
+    width: min(46vmin, 90vw);
+    padding: 1.4vmin 1.8vmin;
+    border-radius: 1.2vmin;
+    background: rgba(0, 0, 0, .7);
+    color: var(--cc-text);
+    font-family: var(--cc-font);
+    font-size: 2.2vmin;
+    line-height: 1.3;
+}
+
+.cc-status[hidden] {
+    display: none;
+}
+
+.cc-status__bar {
+    height: .8vmin;
+    margin-top: 1vmin;
+    border-radius: .4vmin;
+    background: rgba(255, 255, 255, .25);
+    overflow: hidden;
+}
+
+.cc-status__bar[hidden] {
+    display: none;
+}
+
+.cc-status__progress {
+    width: 0;
+    height: 100%;
+    background: var(--cc-accent);
+    transition: width .2s linear;
+}

@@ -1,0 +1,15 @@
+@using BTCPayServer.Client
+@model BTCPayServer.Components.MainNav.MainNavViewModel
+@{ var store = Context.GetStoreDataOrNull(); }
+
+@if (store != null)
+{
+    <li class="nav-item" permission="@Policies.CanModifyStoreSettings">
+        <a asp-area="" asp-controller="UICheddarChatLite" asp-action="Index" asp-route-storeId="@store.Id" layout-menu-item="@CheddarChatLiteApp.AppType">
+            <svg role="img" class="icon icon-cheddarchat" viewBox="0 0 24 24" style="--icon-size: 18px;margin: 0 6px 0 4px;">
+                <path fill="currentColor" fill-rule="evenodd" d="M2 10 15 4l7 6v9H2zm7.25 4.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0zm6 1.5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0zm3.25-3.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+            <span>CheddarChat Lite</span>
+        </a>
+    </li>
+}
