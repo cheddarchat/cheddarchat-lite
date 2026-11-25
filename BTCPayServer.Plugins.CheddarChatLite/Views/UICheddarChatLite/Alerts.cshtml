@@ -27,15 +27,20 @@
     <div class="col-xl-10 col-xxl-constrain">
         <label for="OverlayUrl" class="form-label" text-translate="true">OBS overlay URL</label>
         <div class="d-flex gap-3">
-            <div class="input-group clipboard-button" data-clipboard="@Model.OverlayUrl">
-                <input id="OverlayUrl" type="text" class="form-control copy-cursor" readonly="readonly" value="@Model.OverlayUrl" />
-                <button type="button" class="btn btn-outline-secondary px-3" title="@StringLocalizer["Copy"]">
+            @* Hidden like a password until the eye is clicked, so that the URL does not end up on stream by accident.
+               Copying works without showing it. *@
+            <div class="input-group">
+                <input id="OverlayUrl" type="password" class="form-control" readonly="readonly" autocomplete="off" value="@Model.OverlayUrl" />
+                <button type="button" class="btn btn-outline-secondary px-3 only-for-js" id="ToggleOverlayUrl" title="@StringLocalizer["Show or hide the URL"]" data-toggle-password="#OverlayUrl">
+                    <vc:icon symbol="actions-show" />
+                </button>
+                <button type="button" class="btn btn-outline-secondary px-3 clipboard-button" id="CopyOverlayUrl" title="@StringLocalizer["Copy"]" data-clipboard="@Model.OverlayUrl">
                     <vc:icon symbol="actions-copy" />
                 </button>
             </div>
             <a asp-action="ResetOverlayUrl" asp-route-appId="@Model.AppId" class="btn btn-outline-danger text-nowrap" id="ResetOverlayUrl" data-bs-toggle="modal" data-bs-target="#ConfirmModal" text-translate="true">Reset</a>
         </div>
-        <div class="form-text" text-translate="true">Add this URL as a browser source in OBS. Keep it private: Anyone with this URL can show your alerts.</div>
+        <div class="form-text" text-translate="true">Add this URL as a browser source in OBS. Keep it private: Anyone with this URL can show your alerts. It stays hidden until you click the eye.</div>
     </div>
 </div>
 

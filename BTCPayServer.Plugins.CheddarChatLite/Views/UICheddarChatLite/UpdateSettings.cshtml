@@ -148,9 +148,17 @@
                         <option value="" text-translate="true">Voice of the streaming computer</option>
                     </optgroup>
                 </select>
-                <div class="form-text">
-                    <span text-translate="true">The named voices are spoken by the Phonon speech model, which runs inside the OBS browser source. OBS downloads it once (about 70 MB) from jsDelivr and Hugging Face. Its sound is part of the browser source, so "Control audio via OBS" works.</span>
-                    <span text-translate="true">The voice of the streaming computer needs no download, but OBS can only capture it as desktop audio, with "Control audio via OBS" unchecked.</span>
+                <div>
+                    <button class="d-inline-flex align-items-center btn btn-link text-primary fw-semibold p-0 mt-2" type="button" id="VoiceDetailsButton" data-bs-toggle="collapse" data-bs-target="#VoiceDetails" aria-expanded="false" aria-controls="VoiceDetails">
+                        <vc:icon symbol="caret-down" />
+                        <span class="ms-1" text-translate="true">About the voices and the one-time download</span>
+                    </button>
+                </div>
+                <div id="VoiceDetails" class="collapse">
+                    <div class="form-text pt-2">
+                        <p class="mb-2" text-translate="true">The named voices are spoken by the Phonon speech model, which runs inside the OBS browser source. OBS downloads it once (about 70 MB) from jsDelivr and Hugging Face. Its sound is part of the browser source, so "Control audio via OBS" works.</p>
+                        <p class="mb-0" text-translate="true">The voice of the streaming computer needs no download, but OBS can only capture it as desktop audio, with "Control audio via OBS" unchecked.</p>
+                    </div>
                 </div>
                 <span asp-validation-for="Voice" class="text-danger"></span>
             </div>

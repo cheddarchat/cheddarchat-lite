@@ -4,6 +4,10 @@ A free, minimal [BTCPay Server](https://github.com/btcpayserver/btcpayserver) pl
 
 Viewers pay to send a message (a CheddarChat). Once the payment is settled, the message pops up as a donation alert in OBS and is read aloud by a natural sounding voice that runs inside the OBS browser source.
 
+<img src=".github/screenshots/overlay.png" alt="An alert in the OBS overlay: a Bitcoin logo, &quot;Satoshi sent $5.00&quot; and the message" width="720">
+
+*An alert as the overlay shows it. The overlay is transparent: the dark background stands in for your stream.*
+
 ## Features
 
 - **Public donation page:** Viewers enter their name, an amount and a message, then pay with any payment method enabled on your store.
@@ -18,13 +22,28 @@ Viewers pay to send a message (a CheddarChat). Once the payment is settled, the 
 
 1. Install the plugin (see [Building](#building)) and open your store.
 2. In the left navigation, click **CheddarChat Lite**, then **Enable**. Each store has one CheddarChat.
+
+   <img src=".github/screenshots/enable.png" alt="The CheddarChat Lite entry in the store navigation and the Enable button" width="720">
+
 3. In the settings, set the currency, minimum amount, maximum message length, the **alert image URL** and whether text-to-speech is on. Save.
-4. Click **Alerts** and copy the **OBS overlay URL**.
+
+   <img src=".github/screenshots/settings.png" alt="The settings: title, description, currency, minimum amount, message length, and the alert options with the voice" width="560">
+
+4. Click **Alerts** and copy the **OBS overlay URL**. It is hidden like a password, so it does not show up on stream by accident: the copy button works without revealing it, and the eye shows or hides it.
+
+   <img src=".github/screenshots/alerts.png" alt="The Alerts page with the OBS overlay URL, the overlay status and the paid CheddarChats with Play and Replay" width="720">
+
 5. In OBS, add a **Browser** source with that URL, sized for example 800×600 or your full canvas size.
 6. Click **Send test alert** to check the overlay.
+
+   <img src=".github/screenshots/obs.png" alt="OBS with the overlay as a browser source: the source is selected, shown by its red outline, while an alert plays" width="720">
+
+   *The overlay as an 800×600 browser source in OBS, selected so that its red outline shows. Alerts appear inside that box, so drag it to where you want them.*
 7. Click **View** in the settings to get the public page and share it with your viewers.
 
-The overlay URL contains a secret key. Keep it off-screen. If it leaks, use **Reset** on the Alerts page and paste the new URL into OBS.
+   <img src=".github/screenshots/public-page.png" alt="The public page, where a viewer enters a name, an amount and a message" width="480">
+
+The overlay URL contains a secret key, which is why the Alerts page keeps it hidden. If it leaks, use **Reset** on the Alerts page and paste the new URL into OBS.
 
 <details>
 <summary><strong>Use a clean link like donate.example.com</strong></summary>
@@ -124,6 +143,10 @@ Start the dependencies from `btcpayserver/BTCPayServer.Tests` (`docker compose u
   "DEBUG_PLUGINS": "/absolute/path/to/BTCPayServer.Plugins.CheddarChatLite/bin/Debug/net10.0/BTCPayServer.Plugins.CheddarChatLite.dll"
 }
 ```
+
+## License
+
+[MIT](LICENSE), copyright CheddarChat LLC.
 
 ## Credits
 
