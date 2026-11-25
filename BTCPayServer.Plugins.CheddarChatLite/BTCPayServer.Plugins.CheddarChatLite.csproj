@@ -9,7 +9,7 @@
     <Product>CheddarChat Lite</Product>
     <Description>Accept paid messages and play them as donation alerts with text-to-speech in an OBS browser source overlay.</Description>
     <Authors>CheddarChat</Authors>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 
   <!-- Plugin development properties -->
