@@ -101,7 +101,7 @@ Available classes: `.cc-alert`, `.cc-alert__image`, `.cc-alert__image--default` 
 
 ## Building
 
-This repository uses BTCPay Server as a Git submodule, pinned to v2.4.2, the minimum version the plugin supports.
+This repository uses BTCPay Server as a Git submodule, pinned to v2.4.7, the minimum version the plugin supports.
 
 ```sh
 git submodule update --init --recursive
